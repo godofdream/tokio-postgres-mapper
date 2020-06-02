@@ -6,7 +6,7 @@ extern crate syn;
 use proc_macro::TokenStream;
 
 use syn::{
-    Data, DataStruct, DeriveInput, GenericParam, Ident, ImplGenerics, Item, Lifetime, LifetimeDef,
+    Data, DataStruct, DeriveInput,  Ident, ImplGenerics, Item, 
     Meta::{List, NameValue}, NestedMeta::Meta, TypeGenerics, WhereClause,
 };
 
@@ -97,11 +97,7 @@ fn impl_tokio_pg_mapper(
                 })
             }
 
-            fn from_rows(rows: Vec<tokio_postgres::row::Row>) -> ::std::result::Result<Vec<Self>, tokio_pg_mapper::Error> {
-                rows.iter().map(|row| Self::from_row(row).map_err(|e| e.into())).collect()
-            }
-
-            fn from_rows_ref(rows: Vec<&tokio_postgres::row::Row>) -> ::std::result::Result<Vec<Self>, tokio_pg_mapper::Error> {
+            fn from_rows(rows: Vec<&tokio_postgres::row::Row>) -> ::std::result::Result<Vec<Self>, tokio_pg_mapper::Error> {
                 rows.iter().map(|row| Self::from_row_ref(row).map_err(|e| e.into())).collect()
             }
 
