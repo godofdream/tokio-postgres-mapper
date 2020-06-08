@@ -11,4 +11,4 @@ path=".."
 features=["derive"]
 
 [dependencies]
-tokio-postgres = "0.5.4"
+tokio-postgres = "0.5"
