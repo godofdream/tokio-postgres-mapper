@@ -68,6 +68,33 @@ fn impl_tokio_pg_mapper(
         }
     });
 
+    let fields_indexed = s.fields.iter().enumerate().map(|(i,field)| {
+        let ident = field.ident.as_ref().unwrap();
+        let ty = &field.ty;
+
+        let row_expr = format!(r##"{}usize"##, i);
+        quote! {
+            #ident:row.try_get::<&str,#ty>(#row_expr)?
+        }
+    });
+    
+    let ref_fields_indexed = s.fields.iter().enumerate().map(|(i,field)| {
+        let ident = field.ident.as_ref().unwrap();
+        let ty = &field.ty;
+        let row_expr = format!(r##"{}usize"##, i);
+        quote! {
+            #ident:row.try_get::<&str,#ty>(&#row_expr)?
+        }
+    });
+
+    let ref_values = s.fields.iter().map(|field| {
+        let ident = field.ident.as_ref().unwrap();
+        quote! {
+            &self.#ident
+        }
+    });
+
+
     let table_columns = 
         s.fields.iter()
               .map(|field| {
@@ -101,6 +128,22 @@ fn impl_tokio_pg_mapper(
                 rows.iter().map(|row| Self::from_row_ref(row).map_err(|e| e.into())).collect()
             }
 
+            fn from_row_indexed(row: tokio_postgres::row::Row) -> ::std::result::Result<Self, tokio_pg_mapper::Error> {
+                Ok(Self {
+                    #(#fields_indexed),*
+                })
+            }
+
+            fn from_row_ref_indexed(row: &tokio_postgres::row::Row) -> ::std::result::Result<Self, tokio_pg_mapper::Error> {
+                Ok(Self {
+                    #(#ref_fields_indexed),*
+                })
+            }
+
+            fn from_rows_indexed(rows: Vec<tokio_postgres::row::Row>) -> ::std::result::Result<Vec<Self>, tokio_pg_mapper::Error> {
+                rows.iter().map(|row| Self::from_row_ref_indexed(row).map_err(|e| e.into())).collect()
+            }
+
             fn sql_table() -> String {
                 #table_name.to_string()
             }
@@ -111,6 +154,12 @@ fn impl_tokio_pg_mapper(
             
             fn sql_fields() -> String {
                 #columns.to_string()
+            }
+
+            fn fields_to_list(&self) -> Vec<&(dyn ToSql + Sync)> {
+                vec!(
+                    #(#ref_values),*
+                )
             }
         }
     };

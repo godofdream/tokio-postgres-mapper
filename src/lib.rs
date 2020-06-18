@@ -62,6 +62,7 @@ pub use tokio_pg_mapper_derive::*;
 
 use tokio_postgres;
 use tokio_postgres::row::Row as TokioRow;
+use tokio_postgres::types::{ToSql};
 
 use std::error::Error as StdError;
 use std::fmt::{Display, Formatter, Result as FmtResult};
@@ -121,6 +122,40 @@ pub trait FromTokioPostgresRow: Sized {
     /// [`Error::Conversion`]: enum.Error.html#variant.Conversion
     fn from_rows(rows: Vec<TokioRow>) -> Result<Vec<Self>, Error>;
 
+    /// Converts from a `tokio-postgres` `Row` into a mapped type, consuming the
+    /// given `Row`. Assuming the columns in `Row`are in sql_fields() order
+    ///
+    /// # Errors
+    ///
+    /// Returns [`Error::Conversion`] if there was an error converting the row
+    /// column to the requested type.
+    ///
+    /// [`Error::Conversion`]: enum.Error.html#variant.Conversion
+    fn from_row_indexed(row: TokioRow) -> Result<Self, Error>;
+
+    /// Converts from a `tokio-postgres` `Row` into a mapped type, borrowing the
+    /// given `Row`. Assuming the columns in `Row`are in sql_fields() order
+    ///
+    /// # Errors
+    ///
+    /// Returns [`Error::Conversion`] if there was an error converting the row
+    /// column into the requested type.
+    ///
+    /// [`Error::ColumnNotFound`]: enum.Error.html#variant.ColumnNotFound
+    /// [`Error::Conversion`]: enum.Error.html#variant.Conversion
+    fn from_row_ref_indexed(row: &TokioRow) -> Result<Self, Error>;
+
+    /// Converts from a `tokio-postgres` `Vec<Row>` into a mapped type, consuming the
+    /// given `Vec<Row>`. Assuming the columns in `Row`are in sql_fields() order
+    ///
+    /// # Errors
+    ///
+    /// Returns [`Error::Conversion`] if there was an error converting the row
+    /// column to the requested type.
+    ///
+    /// [`Error::ColumnNotFound`]: enum.Error.html#variant.ColumnNotFound
+    /// [`Error::Conversion`]: enum.Error.html#variant.Conversion
+    fn from_rows_indexed(rows: Vec<TokioRow>) -> Result<Vec<Self>, Error>;
 
     /// Get the name of the annotated sql table name.
     ///
@@ -178,6 +213,9 @@ pub trait FromTokioPostgresRow: Sized {
     /// ```
     ///
     fn sql_table_fields() -> String;
+
+    /// Get a list of the field values.
+    fn fields_to_list(&self) -> Vec<&(dyn ToSql + Sync)>;
 }
 
 /// General error type returned throughout the library.
