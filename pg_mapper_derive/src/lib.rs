@@ -161,6 +161,14 @@ fn impl_tokio_pg_mapper(
                     #(#ref_values),*
                 )
             }
+            fn table_columns_fields_list(&self) -> Vec<&(dyn ToSql)> {
+                vec!(
+                    #table_name.to_string(),
+                    #columns.to_string(),
+                    #(#ref_values),*
+                )
+            }
+
         }
     };
 
