@@ -156,7 +156,7 @@ fn impl_tokio_pg_mapper(
                 #columns.to_string()
             }
 
-            fn fields_to_list(&self) -> Vec<&(dyn ToSql + Sync)> {
+            fn fields_to_list(&self) -> Vec<&(dyn ToSql)> {
                 vec!(
                     #(#ref_values),*
                 )
