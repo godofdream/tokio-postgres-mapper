@@ -217,7 +217,6 @@ pub trait FromTokioPostgresRow: Sized {
     /// Get a list of the field values.
     fn fields_to_list(&self) -> Vec<&(dyn ToSql)>;
 
-    fn table_columns_fields_list(&self) -> Vec<&(dyn ToSql)>;
 }
 
 /// General error type returned throughout the library.

@@ -94,7 +94,7 @@ fn impl_tokio_pg_mapper(
         }
     });
 
-
+    
     let table_columns = 
         s.fields.iter()
               .map(|field| {
@@ -108,6 +108,7 @@ fn impl_tokio_pg_mapper(
         let ident = field.ident.as_ref().expect("Expected structfield identifier");
         format!(" {} ", ident)
     }).collect::<Vec<String>>().join(", ");
+
 
 
     let tokens = quote! {
@@ -161,14 +162,6 @@ fn impl_tokio_pg_mapper(
                     #(#ref_values),*
                 )
             }
-            fn table_columns_fields_list(&self) -> Vec<&(dyn ToSql)> {
-                vec!(
-                    #table_name.to_string(),
-                    #columns.to_string(),
-                    #(#ref_values),*
-                )
-            }
-
         }
     };
 
