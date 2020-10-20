@@ -13,7 +13,7 @@ edition = "2018"
 doctest = false
 
 [dependencies]
-tokio-postgres = "0.6.0"
+tokio-postgres = {version="0.6", features=["with-serde_json-1","with-chrono-0_4","derive"]}
 tokio-pg-mapper-derive = { path = "pg_mapper_derive", optional = true }
 
 [[example]]
